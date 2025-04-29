@@ -3,7 +3,7 @@
    ---------------------------------------------------------------------
    • Hard validation (type, size, megapixels, file-count)
    • Reliable Cloudinary upload  (resource_type = auto)
-   • Sends plain URLs + text to Zapier
+   • Sends plain URLs + text to Zapier   (< 10 MB)
    ===================================================================== */
 
 /* → 1. CLOUDINARY & ZAPIER ------------------------------------------ */
@@ -14,13 +14,13 @@ const ZAP_URL       = 'https://hooks.zapier.com/hooks/catch/22045060/2p8r55k/';
 /* → 2. FILE POLICY -------------------------------------------------- */
 const POLICY = {
   // input name          allowed MIME prefixes               max files
-  style_guide:    { types: ['application/pdf',
-                            'application/msword',
-                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], max: 1 },
-  brand_assets:   { types: ['application/zip','application/pdf','image/'], max: 3 },
-  content_files:  { types: ['application/','text/'], max: 3 },
-  image_files:    { types: ['image/'], max: 10 },
-  other_assets:   { types: ['application/','image/'], max: 5 },
+  style_guide:   { types: ['application/pdf',
+                           'application/msword',
+                           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'], max: 1 },
+  brand_assets:  { types: ['application/zip','application/pdf','image/'], max: 3 },
+  content_files: { types: ['application/','text/'], max: 3 },
+  image_files:   { types: ['image/'], max: 10 },
+  other_assets:  { types: ['application/','image/'], max: 5 },
 };
 const MAX_IMAGE_MB = 10;
 const MAX_OTHER_MB = 10;
@@ -35,9 +35,7 @@ function allowedType(file, field){
 
 function fileSizeOK(file){
   const mb = file.size / (1024*1024);
-  return file.type.startsWith('image/')
-         ? mb <= MAX_IMAGE_MB
-         : mb <= MAX_OTHER_MB;
+  return file.type.startsWith('image/') ? mb <= MAX_IMAGE_MB : mb <= MAX_OTHER_MB;
 }
 
 // check pixel dimensions for huge images
@@ -73,7 +71,7 @@ async function uploadToCloudinary(file, folder=''){
 function setStatus(txt,isErr=false){
   const el=document.getElementById('status');
   el.textContent = txt;
-  el.style.color = isErr? '#f33':'#0f0';
+  el.style.color = isErr ? '#f33' : '#0f0';
 }
 
 /* → 4. UI BEHAVIOUR (clone blocks, show/hide “Other”) --------------- */
@@ -87,16 +85,16 @@ document.getElementById('add-website').addEventListener('click',()=>{
   {sel:'select[name="primary_cta"]',     tgt:'other-cta'}
 ].forEach(({sel,tgt})=>{
   document.querySelector(sel).addEventListener('change',function(){
-    document.getElementById(tgt).style.display = this.value==='Other'?'block':'none';
+    document.getElementById(tgt).style.display = this.value==='Other' ? 'block' : 'none';
   });
 });
 document.querySelector('input[name="functionalities[]"][value="Other"]')
   .addEventListener('change',function(){
-    document.getElementById('other-functionalities').style.display = this.checked?'block':'none';
+    document.getElementById('other-functionalities').style.display = this.checked ? 'block' : 'none';
   });
 document.querySelector('input[name="pages[]"][value="Other"]')
   .addEventListener('change',function(){
-    document.getElementById('other-pages').style.display = this.checked?'block':'none';
+    document.getElementById('other-pages').style.display = this.checked ? 'block' : 'none';
   });
 
 /* → 5. SUBMIT HANDLER ---------------------------------------------- */
@@ -106,12 +104,12 @@ document.getElementById('intake-form').addEventListener('submit', async e=>{
   btn.disabled=true; setStatus('Validating files…');
 
   try{
-    /* 5-A validate every file */
+    /* 5-A  VALIDATE */
     for (const [field,policy] of Object.entries(POLICY)){
-      const input=form.elements[field]||form.elements[field+'[]'];
-      if (!input) continue;
-      const files=[...input.files];
-      if (files.length>policy.max) err(`Max ${policy.max} files in ${field}.`);
+      const inputs = [form.elements[field], form.elements[field+'[]']].filter(Boolean);
+      const files  = inputs.flatMap(inp => [...inp.files]);
+      if (!files.length) continue;
+      if (files.length > policy.max) err(`Max ${policy.max} files in ${field}.`);
       for (const f of files){
         if (!allowedType(f,field)) err(`Type not allowed: ${f.name}`);
         if (!fileSizeOK(f))        err(`${f.name} exceeds size limit`);
@@ -119,30 +117,37 @@ document.getElementById('intake-form').addEventListener('submit', async e=>{
       }
     }
 
-    /* 5-B upload each file, replace with URLs */
-    const fd=new FormData(form);
-    const clientSlug=(fd.get('full_name')||'unknown').trim().replace(/\s+/g,'_');
-    const folder=`intake_uploads/${clientSlug}`;
+    /* 5-B  BUILD FORM DATA, UPLOAD FILES, STRIP RAW FILES */
+    const fd = new FormData(form);
+    const clientSlug = (fd.get('full_name') || 'unknown').trim().replace(/\s+/g,'_');
+    const folder     = `intake_uploads/${clientSlug}`;
 
     for (const [field] of Object.entries(POLICY)){
-      const files = fd.getAll(field).filter(v=>v instanceof File);
+      const names = [field, field+'[]'];             // handle both variants
+      const files = names.flatMap(n => fd.getAll(n).filter(v => v instanceof File));
       if (!files.length) continue;
+
       const urls=[];
       for (const f of files){
         setStatus(`Uploading ${f.name}…`);
-        urls.push(await uploadToCloudinary(f,folder));
+        urls.push(await uploadToCloudinary(f, folder));
       }
-      fd.delete(field);
+
+      // remove every variant holding File objects
+      names.forEach(n => fd.delete(n));
+
+      // append stringified URL list (zapier receives small payload)
       fd.append(`${field}_urls`, JSON.stringify(urls));
     }
 
-    /* 5-C submit to Zapier */
+    /* 5-C  POST TO ZAPIER */
     setStatus('Sending data to Zapier…');
     const zap = await fetch(ZAP_URL,{method:'POST',body:fd});
     if (!zap.ok){
       console.error('Zapier body:', await zap.text());
       err('Zapier error, please try again.');
     }
+
     setStatus('✅ Submission saved!');
     alert('Thank you! We’ll follow up soon.');
     form.reset();
