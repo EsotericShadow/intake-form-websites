@@ -1,3 +1,4 @@
+/* styles.css */
 body {
   background-color: #222;
   color: #fff;
@@ -36,7 +37,11 @@ button {
   border: none;
   cursor: pointer;
 }
-button:hover {
+button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+button:hover:not(:disabled) {
   background-color: #666;
 }
 .website-entry {
@@ -44,6 +49,11 @@ button:hover {
 }
 .other-input {
   margin-top: 10px;
+}
+.status {
+  margin: 10px 0;
+  font-weight: bold;
+  color: #0f0;
 }
 footer {
   text-align: center;
