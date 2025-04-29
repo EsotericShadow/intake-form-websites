@@ -1,0 +1,174 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Evergreen Web Solutions - Client Intake Form</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.emailjs.com/sdk/2.3.2/email.min.js"></script>
+</head>
+<body>
+    <form id="intake-form" enctype="multipart/form-data">
+        <h1>🌐 Web Design Client Intake Form</h1>
+        <p>Thank you for choosing us to bring your vision to life! Please complete this form to the best of your ability. The more details you provide, the better we can craft a site that fits your brand perfectly.</p>
+        
+        <section id="basic-info">
+            <h2>1. Basic Information</h2>
+            <label>Full Name</label><input type="text" name="full_name" required>
+            <label>Business Name</label><input type="text" name="business_name" required>
+            <label>Email Address</label><input type="email" name="email" required>
+            <label>Phone Number</label><input type="tel" name="phone">
+            <label>Current Website (if any)</label><input type="url" name="current_website">
+            <label>Social Media Links (Instagram, Facebook, LinkedIn, etc.)</label><textarea name="social_media"></textarea>
+        </section>
+        
+        <section id="business-overview">
+            <h2>2. Business Overview</h2>
+            <label>What does your business do? (Brief description)</label><textarea name="business_description"></textarea>
+            <label>Who is your target audience? (Age range, gender, interests, location, profession, etc.)</label><textarea name="target_audience"></textarea>
+            <label>What makes your business unique? (Your unique selling proposition)</label><textarea name="unique_selling_proposition"></textarea>
+        </section>
+        
+        <section id="website-goals">
+            <h2>3. Website Goals</h2>
+            <label>What are the main goals for your new website? (e.g., showcase portfolio, sell products, generate leads, build community)</label><textarea name="website_goals"></textarea>
+            <label>Primary Call-to-Action (CTA)</label>
+            <select name="primary_cta">
+                <option value="Book a Call">Book a Call</option>
+                <option value="Shop Now">Shop Now</option>
+                <option value="Download Brochure">Download Brochure</option>
+                <option value="Contact Us">Contact Us</option>
+                <option value="Other">Other</option>
+            </select>
+            <div id="other-cta" class="other-input" style="display:none;">
+                <label>Specify other CTA</label>
+                <input type="text" name="other_cta">
+            </div>
+            <label>Specific functionalities needed</label>
+            <div>
+                <label><input type="checkbox" name="functionalities[]" value="E-commerce store"> E-commerce store</label>
+                <label><input type="checkbox" name="functionalities[]" value="Blog"> Blog</label>
+                <label><input type="checkbox" name="functionalities[]" value="Appointment booking"> Appointment booking</label>
+                <label><input type="checkbox" name="functionalities[]" value="Member login"> Member login</label>
+                <label><input type="checkbox" name="functionalities[]" value="Portfolio"> Portfolio</label>
+                <label><input type="checkbox" name="functionalities[]" value="Events calendar"> Events calendar</label>
+                <label><input type="checkbox" name="functionalities[]" value="Other"> Other</label>
+            </div>
+            <div id="other-functionalities" class="other-input" style="display:none;">
+                <label>Specify other functionalities</label>
+                <textarea name="other_functionalities"></textarea>
+            </div>
+        </section>
+        
+        <section id="design-preferences">
+            <h2>4. Design Style Preferences</h2>
+            <label>Do you have an existing brand style guide? (Upload below if yes)</label><input type="file" name="style_guide" accept=".pdf,.doc,.docx">
+            <label>Upload your brand assets (e.g., logo files, brand fonts, color palette)</label><input type="file" name="brand_assets[]" multiple accept=".zip,.pdf,.jpg,.png">
+            <label>What 3 words should describe the vibe of your website? (e.g., modern, luxurious, friendly, corporate, artistic)</label>
+            <input type="text" name="vibe_description">
+            <p>Suggestions: modern, luxurious, friendly, corporate, artistic, minimalist, vibrant, professional, etc.</p>
+            <div id="reference-websites">
+                <h3>Any websites you love? (Please list 2-3 and what you like about them)</h3>
+                <div id="website-entries">
+                    <div class="website-entry">
+                        <label>Website URL</label><input type="url" name="reference_url[]">
+                        <label>What do you like about it?</label><textarea name="reference_description[]"></textarea>
+                    </div>
+                </div>
+                <button type="button" id="add-website">Add Another Website</button>
+            </div>
+            <label>Any websites you dislike? (Optional, and why)</label><textarea name="disliked_websites"></textarea>
+            <label>Preferred colors (or colors to avoid?)</label><input type="text" name="preferred_colors">
+            <label>Preferred fonts (or types of fonts)</label>
+            <select name="preferred_fonts">
+                <option value="Serif">Serif</option>
+                <option value="Sans-serif">Sans-serif</option>
+                <option value="Script">Script</option>
+                <option value="Display">Display</option>
+                <option value="Other">Other</option>
+            </select>
+            <div id="other-fonts" class="other-input" style="display:none;">
+                <label>Specify other fonts</label>
+                <input type="text" name="other_fonts">
+            </div>
+        </section>
+        
+        <section id="content-upload">
+            <h2>5. Content Upload</h2>
+            <label>Upload all content you'd like to include (Text files, Word docs, PDFs, etc.)</label><input type="file" name="content_files[]" multiple accept=".doc,.docx,.pdf,.txt">
+            <label>Upload all images you'd like to use (Professional photos, product images, headshots, etc.)</label><input type="file" name="image_files[]" multiple accept="image/*">
+            <label>Upload any other assets (Brochures, pitch decks, old website content, etc.)</label><input type="file" name="other_assets[]" multiple>
+            <p>Note: If you don't have content ready, that's okay! We'll work with you to plan it.</p>
+        </section>
+        
+        <section id="pages-needed">
+            <h2>6. Pages Needed</h2>
+            <label>Pages Needed</label>
+            <div>
+                <label><input type="checkbox" name="pages[]" value="Home"> Home</label>
+                <label><input type="checkbox" name="pages[]" value="About"> About</label>
+                <label><input type="checkbox" name="pages[]" value="Services"> Services</label>
+                <label><input type="checkbox" name="pages[]" value="Blog"> Blog</label>
+                <label><input type="checkbox" name="pages[]" value="Contact"> Contact</label>
+                <label><input type="checkbox" name="pages[]" value="FAQs"> FAQs</label>
+                <label><input type="checkbox" name="pages[]" value="Other"> Other</label>
+            </div>
+            <div id="other-pages" class="other-input" style="display:none;">
+                <label>Specify other pages</label>
+                <textarea name="other_pages"></textarea>
+            </div>
+        </section>
+        
+        <section id="additional-features">
+            <h2>7. Additional Features</h2>
+            <label>Would you like blog functionality?</label>
+            <select name="blog_functionality">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <label>Would you like an email newsletter signup form?</label>
+            <select name="newsletter_signup">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <label>Will you be selling products or services online?</label>
+            <select name="ecommerce">
+                <option value="Yes">Yes</option>
+                <option value="No">No</option>
+            </select>
+            <label>Any third-party tools you need integrated? (e.g., Mailchimp, Calendly, Shopify, Stripe)</label><textarea name="third_party_tools"></textarea>
+        </section>
+        
+        <section id="timeline-budget">
+            <h2>8. Timeline & Budget</h2>
+            <label>Ideal launch date</label><input type="date" name="launch_date">
+            <label>Are there any hard deadlines? (e.g., product launch, event)</label><textarea name="deadlines"></textarea>
+            <label>Approximate budget range (Optional, but helpful for us to recommend solutions)</label><input type="text" name="budget_range">
+        </section>
+        
+        <section id="ongoing-services">
+            <h2>9. Ongoing Services</h2>
+            <p>Are you interested in any of the following ongoing services? (Select any that apply)</p>
+            <label><input type="checkbox" name="ongoing_services[]" value="Maintenance"> Website Maintenance</label>
+            <label><input type="checkbox" name="ongoing_services[]" value="SEO"> SEO Optimization</label>
+            <label><input type="checkbox" name="ongoing_services[]" value="Content Creation"> Content Creation (blog posts, social media)</label>
+            <label><input type="checkbox" name="ongoing_services[]" value="Hosting"> Website Hosting</label>
+            <label>Other: <textarea name="other_services"></textarea></label>
+        </section>
+        
+        <section id="anything-else">
+            <h2>10. Anything Else?</h2>
+            <label>Is there anything else you want us to know about your project?</label><textarea name="additional_info"></textarea>
+        </section>
+        
+        <button type="submit">📎 Submit Form</button>
+        <p>After submission, you’ll receive an email to schedule a kickoff call.</p>
+        <p>Accepted file types: Images (JPG, PNG), Docs (DOCX, PDF). Max size: 10MB</p>
+    </form>
+    <footer>
+        <p>evergreen web solutions | evergreenwebsolutions.ca</p>
+    </footer>
+    <script src="script.js"></script>
+</body>
+</html>
