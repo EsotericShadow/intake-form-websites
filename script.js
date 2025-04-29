@@ -124,7 +124,6 @@ document.getElementById('intake-form').addEventListener('submit', async e => {
   const folder = `intake_uploads/${client}`;
 
   // upload each file-input
-  const urlFields = {};
   for (let input of fileInputs) {
     const name = input.name;
     const files = fd.getAll(name).filter(f => f instanceof File);
@@ -135,21 +134,18 @@ document.getElementById('intake-form').addEventListener('submit', async e => {
       const url = await uploadToCloudinary(file, folder);
       urls.push(url);
     }
-    urlFields[`${name}_urls`] = urls;
-    fd.delete(name);
+    // Append the URLs to the FormData object
+    fd.append(`${name}_urls`, JSON.stringify(urls));
+    fd.delete(name); // Remove the original file inputs
   }
 
   // build payload & send to Zapier
   statusEl.textContent = 'Sending data…';
-  const payload = {};
-  for (let [k,v] of fd.entries()) payload[k] = v;
-  Object.assign(payload, urlFields);
 
   try {
     const resp = await fetch(ZAP_URL, {
       method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(payload)
+      body: fd // Send FormData directly
     });
     if (resp.ok) {
       statusEl.textContent = '✅ Submission saved!';
